@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { createStore } from "./vanilla";
 
 type AgeStoreState = { age: number };
@@ -40,10 +40,24 @@ describe("createStore", () => {
     expect(typeof store.getState().setAge).toBe("function");
   });
 
-  it.todo("initializes state using the state creator");
-  it.todo("merges partial state updates");
-  it.todo("supports functional state updates");
-  it.todo("preserves the initial state after updates");
-  it.todo("notifies subscribers with the current and previous state");
-  it.todo("stops notifying a subscriber after unsubscribe");
+  it("passes set, get and the api to the initalizer", () => {
+    const initalizer = vi.fn(() => ({ age: 42 }));
+    const store = createStore<{ age: number }>()(initalizer);
+    const [set, get, api] = initalizer.mock.calls[0] as unknown as [
+      unknown,
+      () => unknown,
+      unknown,
+    ];
+
+    expect(typeof set).toBe("function");
+    expect(get()).toBe(store.getState());
+    expect(api).toBe(store);
+  });
+
+  it("updates state via action with a value", () => {
+    const store = createAgeStore();
+
+    store.getState().setAge(10);
+    expect(store.getState().age).toBe(10);
+  });
 });

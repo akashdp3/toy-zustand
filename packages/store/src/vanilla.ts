@@ -1,7 +1,11 @@
-type StateCreator<T> = Function;
+type setStateArg<T> = Partial<T> | ((state: T) => Partial<T>);
+
+type setFn<T> = (callback: setStateArg<T>) => T;
+
+type StateCreator<T> = (set: setFn<T>, get: () => T, api: StoreApi<T>) => T;
 
 type StoreApi<T> = {
-  setState: Function;
+  setState: (partial: setStateArg<T>, replace: boolean) => void;
   getState: Function;
   getInitialState: Function;
   subscribe: Function;
@@ -11,8 +15,20 @@ export function createStore<T>() {
   let initialState: T;
   let state: T;
 
-  function setState() {
-    // TODO
+  function setState(partial: setStateArg<T>, replace: boolean = false) {
+    let result: Partial<T>;
+
+    if (typeof partial === "function") {
+      result = partial(state);
+    } else {
+      result = partial;
+    }
+
+    if (replace) {
+      state = Object.assign({}, result) as T;
+    } else {
+      state = { ...state, ...result };
+    }
   }
 
   function getState() {
@@ -28,14 +44,22 @@ export function createStore<T>() {
   }
 
   return function (stateCreatorFn: StateCreator<T>): StoreApi<T> {
-    initialState = stateCreatorFn();
-    state = Object.assign({}, initialState);
+    function set(callback: setStateArg<T>): T {
+      setState(callback);
 
-    return {
+      return Object.assign({}, state);
+    }
+
+    const api = {
       setState,
       getState,
       getInitialState,
       subscribe,
     };
+
+    initialState = stateCreatorFn(set, getState, api);
+    state = Object.assign({}, initialState);
+
+    return api;
   };
 }
