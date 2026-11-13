@@ -6,7 +6,7 @@ type StateCreator<T> = (set: setFn<T>, get: () => T, api: StoreApi<T>) => T;
 
 type StoreApi<T> = {
   setState: (partial: setStateArg<T>, replace: boolean) => void;
-  getState: Function;
+  getState: () => T;
   getInitialState: Function;
   subscribe: Function;
 };

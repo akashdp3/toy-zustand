@@ -4,9 +4,11 @@ import { createStore } from "./vanilla";
 type AgeStoreState = { age: number };
 
 type AgeStoreActions = {
-  setAge:
-    | AgeStoreState["age"]
-    | ((currentAge: AgeStoreState["age"]) => AgeStoreState["age"]);
+  setAge: (
+    nextAge:
+      | AgeStoreState["age"]
+      | ((currentAge: AgeStoreState["age"]) => AgeStoreState["age"]),
+  ) => void;
 };
 
 type AgeStore = AgeStoreState & AgeStoreActions;
@@ -59,5 +61,12 @@ describe("createStore", () => {
 
     store.getState().setAge(10);
     expect(store.getState().age).toBe(10);
+  });
+
+  it("updates state via an action with an updater function", () => {
+    const store = createAgeStore();
+
+    store.getState().setAge((age) => age + 1);
+    expect(store.getState().age).toBe(43);
   });
 });
