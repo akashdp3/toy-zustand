@@ -69,4 +69,47 @@ describe("createStore", () => {
     store.getState().setAge((age) => age + 1);
     expect(store.getState().age).toBe(43);
   });
+
+  it("shalow-merges partial updates and keep other keys", () => {
+    const store = createStore<{ a: number; b: number }>()(() => ({
+      a: 1,
+      b: 2,
+    }));
+    store.setState({ a: 10 });
+    expect(store.getState()).toStrictEqual({ a: 10, b: 2 });
+  });
+
+  it("setState accepts an updater function receiving current state", () => {
+    const store = createStore<{ a: number; b: number }>()(() => ({
+      a: 1,
+      b: 2,
+    }));
+    store.setState((s) => ({ b: s.b * 10 }));
+    expect(store.getState()).toStrictEqual({ a: 1, b: 20 });
+  });
+
+  it("setState with replace=true replaces the whole state", () => {
+    const store = createStore<{ a: number; b: number }>()(() => ({
+      a: 1,
+      b: 2,
+    }));
+    store.setState((s) => ({ a: 5 }), true);
+    expect(store.getState()).toStrictEqual({ a: 5 });
+  });
+
+  it("produces a new state object on change (immutability)", () => {
+    const store = createAgeStore();
+    const before = store.getState();
+    store.getState().setAge(1);
+
+    expect(store.getState()).not.toBe(before);
+    expect(before.age).toBe(42);
+  });
+
+  it("getInitialState returns the initial state even after updates", () => {
+    const store = createAgeStore();
+    store.getState().setAge(50);
+
+    expect(store.getInitialState().age).toBe(42);
+  });
 });

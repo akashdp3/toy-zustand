@@ -5,9 +5,9 @@ type setFn<T> = (callback: setStateArg<T>) => T;
 type StateCreator<T> = (set: setFn<T>, get: () => T, api: StoreApi<T>) => T;
 
 type StoreApi<T> = {
-  setState: (partial: setStateArg<T>, replace: boolean) => void;
+  setState: (partial: setStateArg<T>, replace?: boolean) => void;
   getState: () => T;
-  getInitialState: Function;
+  getInitialState: () => T;
   subscribe: Function;
 };
 
@@ -36,7 +36,7 @@ export function createStore<T>() {
   }
 
   function getInitialState() {
-    // TODO
+    return initialState;
   }
 
   function subscribe() {
