@@ -112,4 +112,61 @@ describe("createStore", () => {
 
     expect(store.getInitialState().age).toBe(42);
   });
+
+  it("notifies subscribers with (state, prevState)", () => {
+    const store = createAgeStore();
+    const listener = vi.fn();
+    store.subscribe(listener);
+    const prev = store.getState();
+    store.getState().setAge(50);
+
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect(listener).toHaveBeenCalledWith(store.getState(), prev);
+    expect(listener.mock.calls[0][0].age).toBe(50);
+    expect(listener.mock.calls[0][1].age).toBe(42);
+  });
+
+  it("notifies all subscribers", () => {
+    const store = createAgeStore();
+    const l1 = vi.fn();
+    const l2 = vi.fn();
+    store.subscribe(l1);
+    store.subscribe(l2);
+    store.getState().setAge(50);
+
+    expect(l1).toHaveBeenCalledTimes(1);
+    expect(l2).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not notify when next state is the same reference", () => {
+    const store = createAgeStore();
+    const listener = vi.fn();
+    store.subscribe(listener);
+    store.setState((s) => s);
+
+    expect(listener).not.toHaveBeenCalled();
+  });
+
+  it("unsubscribe stops notification", () => {
+    const store = createAgeStore();
+    const listener = vi.fn();
+    const unsubscribe = store.subscribe(listener);
+    unsubscribe();
+    store.getState().setAge(50);
+
+    expect(listener).not.toHaveBeenCalled();
+  });
+
+  it("get() inside the actions reads the latest state", () => {
+    const store = createStore<{ n: number; double: () => number }>()(
+      (_set, get) => ({
+        n: 2,
+        double: () => get().n * 2,
+      }),
+    );
+
+    store.setState({ n: 5 });
+
+    expect(store.getState().double()).toBe(10);
+  });
 });

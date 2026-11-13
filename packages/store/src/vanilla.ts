@@ -8,27 +8,38 @@ type StoreApi<T> = {
   setState: (partial: setStateArg<T>, replace?: boolean) => void;
   getState: () => T;
   getInitialState: () => T;
-  subscribe: Function;
+  subscribe: (listener: Listener<T>) => () => void;
 };
 
-export function createStore<T>() {
+type Listener<T> = (state: T, prevState: T) => void;
+
+export function createStore<T extends object>() {
   let initialState: T;
   let state: T;
+  let listeners: Listener<T>[] = [];
 
   function setState(partial: setStateArg<T>, replace: boolean = false) {
-    let result: Partial<T>;
+    let nextState: Partial<T>;
 
     if (typeof partial === "function") {
-      result = partial(state);
+      nextState = partial(state);
     } else {
-      result = partial;
+      nextState = partial;
     }
 
+    if (Object.is(nextState, state)) return;
+
+    let prevState = state as T;
+
     if (replace) {
-      state = Object.assign({}, result) as T;
+      state = nextState as T;
     } else {
-      state = { ...state, ...result };
+      state = Object.assign({}, state, nextState);
     }
+
+    listeners.forEach((listener) => {
+      listener(state, prevState);
+    });
   }
 
   function getState() {
@@ -39,8 +50,12 @@ export function createStore<T>() {
     return initialState;
   }
 
-  function subscribe() {
-    // TODO
+  function subscribe(listener: Listener<T>) {
+    listeners.push(listener);
+
+    return () => {
+      listeners = listeners.filter((li) => li !== listener);
+    };
   }
 
   return function (stateCreatorFn: StateCreator<T>): StoreApi<T> {
