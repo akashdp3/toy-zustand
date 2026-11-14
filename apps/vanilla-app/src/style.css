@@ -11,8 +11,8 @@
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --sans: system-ui, "Segoe UI", Roboto, sans-serif;
+  --heading: system-ui, "Segoe UI", Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
   font: 18px/145% var(--sans);
@@ -107,6 +107,7 @@ code {
   border: 2px solid transparent;
   transition: border-color 0.3s;
   margin-bottom: 24px;
+  cursor: pointer;
 
   &:hover {
     border-color: var(--accent-border);
@@ -115,6 +116,10 @@ code {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
   }
+}
+
+.age-label {
+  width: 400px;
 }
 
 .hero {
@@ -165,6 +170,8 @@ code {
   min-height: 100svh;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   box-sizing: border-box;
 }
 
@@ -279,7 +286,7 @@ code {
 
   &::before,
   &::after {
-    content: '';
+    content: "";
     position: absolute;
     top: -4.5px;
     border: 5px solid transparent;
