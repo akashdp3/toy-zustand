@@ -2,9 +2,13 @@ type setStateArg<T> = Partial<T> | ((state: T) => Partial<T>);
 
 type setFn<T> = (callback: setStateArg<T>) => T;
 
-type StateCreator<T> = (set: setFn<T>, get: () => T, api: StoreApi<T>) => T;
+export type StateCreator<T> = (
+  set: setFn<T>,
+  get: () => T,
+  api: StoreApi<T>,
+) => T;
 
-type StoreApi<T> = {
+export type StoreApi<T> = {
   setState: (partial: setStateArg<T>, replace?: boolean) => void;
   getState: () => T;
   getInitialState: () => T;
